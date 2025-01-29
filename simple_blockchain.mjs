@@ -1,12 +1,14 @@
-const fs = require('fs');
-const https = require('https');
-const WebSocket = require('ws');
-const crypto = require('crypto');
-const express = require('express');
-const bodyParser = require('body-parser');
-const upnp = require('nat-upnp');
-const publicIp = require('public-ip').default;
-require('dotenv').config();
+import fs from 'fs';
+import https from 'https';
+import { WebSocketServer, WebSocket } from 'ws';
+import crypto from 'crypto';
+import express from 'express';
+import bodyParser from 'body-parser';
+import upnp from 'nat-upnp';
+import { publicIpv4 } from 'public-ip';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const options = {
     key: fs.readFileSync('key_unencrypted.pem'), // Use a chave não criptografada
@@ -85,7 +87,7 @@ class P2PNetwork {
 
     async initialize() {
         const server = https.createServer(options);
-        this.server = new WebSocket.Server({ server });
+        this.server = new WebSocketServer({ server });
 
         this.server.on('connection', (ws) => {
             this.handleNewPeer(ws);
@@ -97,7 +99,7 @@ class P2PNetwork {
 
         // Set up UPnP port forwarding
         const client = upnp.createClient();
-        const publicIpAddress = await publicIp.v4();
+        const publicIpAddress = await publicIpv4();
         client.portMapping({
             public: this.port,
             private: this.port,
@@ -112,8 +114,17 @@ class P2PNetwork {
 
         // Connect to initial peer if provided
         const initialPeer = process.env.INITIAL_PEER;
-        if (initialPeer) {
+        if (initialPeer && this.isValidUrl(initialPeer)) {
             this.connectToPeer(initialPeer);
+        }
+    }
+
+    isValidUrl(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
         }
     }
 
