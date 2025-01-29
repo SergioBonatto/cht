@@ -1,6 +1,4 @@
-Coletando informações do workspace
-
-# Blockchain P2P Network
+# Blockchain P2P Network (WIP)
 
 This project implements a simple blockchain with a peer-to-peer (P2P) network using Node.js. The blockchain is capable of adding new blocks and synchronizing the chain across multiple peers in the network. The project uses WebSockets for P2P communication and Express for the HTTP API.
 
