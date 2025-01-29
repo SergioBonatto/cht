@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { Blockchain } from './blockchain.js';
-import { P2PNetwork } from './p2pNetwork.js';
+import { Blockchain } from '../blockchain/blockchain.js';
+import { P2PNetwork } from '../network/p2pNetwork.js';
 import fs from 'fs';
 import dotenv from 'dotenv';
 import net from 'net';

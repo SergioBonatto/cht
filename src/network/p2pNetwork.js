@@ -1,7 +1,6 @@
 import https from 'https';
 import { WebSocketServer, WebSocket } from 'ws';
-import upnp from 'nat-upnp';
-import { publicIpv4 } from 'public-ip';
+import { setupUPnP } from './upnp.js';
 
 export class P2PNetwork {
     constructor(blockchain, port, options) {
@@ -24,20 +23,16 @@ export class P2PNetwork {
             console.log(`WebSocket server running on port ${this.port}`);
         });
 
-        // Set up UPnP port forwarding
-        const client = upnp.createClient();
-        const publicIpAddress = await publicIpv4();
-        client.portMapping({
-            public: this.port,
-            private: this.port,
-            ttl: 10
-        }, (err) => {
-            if (err) {
-                console.error('UPnP port mapping error:', err);
+        server.on('error', (error) => {
+            if (error.code === 'EADDRINUSE') {
+                console.error(`Port ${this.port} is already in use`);
             } else {
-                console.log(`Port ${this.port} mapped to public IP ${publicIpAddress}`);
+                console.error('Server error:', error);
             }
+            process.exit(1);
         });
+
+        await setupUPnP(this.port);
 
         // Connect to initial peer if provided
         const initialPeer = process.env.INITIAL_PEER;
