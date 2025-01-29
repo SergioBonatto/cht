@@ -1,92 +1,19 @@
-import fs from 'fs';
 import https from 'https';
 import { WebSocketServer, WebSocket } from 'ws';
-import crypto from 'crypto';
-import express from 'express';
-import bodyParser from 'body-parser';
 import upnp from 'nat-upnp';
 import { publicIpv4 } from 'public-ip';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-const options = {
-    key: fs.readFileSync('key_unencrypted.pem'), // Use a chave não criptografada
-    cert: fs.readFileSync('cert.pem')
-};
-
-class Block {
-    constructor(index, timestamp, data, previousHash = '') {
-        this.index = index;
-        this.timestamp = timestamp;
-        this.data = data;
-        this.previousHash = previousHash;
-        this.hash = this.calculateHash();
-    }
-
-    calculateHash() {
-        return crypto.createHash('sha256').update(this.index + this.timestamp + JSON.stringify(this.data) + this.previousHash).digest('hex');
-    }
-}
-
-class Blockchain {
-    constructor() {
-        this.chain = [this.createGenesisBlock()];
-    }
-
-    createGenesisBlock() {
-        return new Block(0, Date.now(), "Genesis Block", "0");
-    }
-
-    getLatestBlock() {
-        return this.chain[this.chain.length - 1];
-    }
-
-    addBlock(data) {
-        const previousBlock = this.getLatestBlock();
-        const newBlock = new Block(this.chain.length, Date.now(), data, previousBlock.hash);
-        this.chain.push(newBlock);
-        return newBlock;
-    }
-
-    isChainValid() {
-        for (let i = 1; i < this.chain.length; i++) {
-            const currentBlock = this.chain[i];
-            const previousBlock = this.chain[i - 1];
-
-            if (currentBlock.hash !== currentBlock.calculateHash()) {
-                return false;
-            }
-
-            if (currentBlock.previousHash !== previousBlock.hash) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    printChain() {
-        this.chain.forEach(block => {
-            console.log("Index:", block.index);
-            console.log("Timestamp:", block.timestamp);
-            console.log("Data:", block.data);
-            console.log("Hash:", block.hash);
-            console.log("Previous Hash:", block.previousHash);
-            console.log("--------------------");
-        });
-    }
-}
-
-class P2PNetwork {
-    constructor(blockchain, port) {
+export class P2PNetwork {
+    constructor(blockchain, port, options) {
         this.blockchain = blockchain;
         this.port = port;
         this.peers = new Set();
         this.server = null;
+        this.options = options;
     }
 
     async initialize() {
-        const server = https.createServer(options);
+        const server = https.createServer(this.options);
         this.server = new WebSocketServer({ server });
 
         this.server.on('connection', (ws) => {
@@ -204,32 +131,3 @@ class P2PNetwork {
         });
     }
 }
-
-// Example usage
-const app = express();
-app.use(bodyParser.json());
-
-const blockchain = new Blockchain();
-const p2pNetwork = new P2PNetwork(blockchain, process.env.P2P_PORT || 6001);
-
-// API endpoints
-app.get('/blocks', (req, res) => {
-    res.json(blockchain.chain);
-});
-
-app.post('/mine', (req, res) => {
-    const block = blockchain.addBlock(req.body.data);
-    p2pNetwork.broadcast({
-        type: 'NEW_BLOCK',
-        data: block
-    });
-    res.json(block);
-});
-
-// Initialization
-const httpPort = process.env.HTTP_PORT || 3001;
-app.listen(httpPort, () => {
-    console.log(`HTTP Server running on port ${httpPort}`);
-});
-
-p2pNetwork.initialize();
