@@ -43,6 +43,8 @@ export class P2PNetwork {
         const initialPeer = process.env.INITIAL_PEER;
         if (initialPeer && this.isValidUrl(initialPeer)) {
             this.connectToPeer(initialPeer);
+        } else {
+            console.warn('No valid initial peer provided');
         }
     }
 
@@ -102,6 +104,10 @@ export class P2PNetwork {
             case 'NEW_BLOCK':
                 this.handleNewBlock(message.data);
                 break;
+
+            default:
+                console.warn('Unknown message type:', message.type);
+                break;
         }
     }
 
@@ -110,6 +116,8 @@ export class P2PNetwork {
         if (chain.length > this.blockchain.chain.length) {
             // Additional validity check here
             this.blockchain.chain = chain;
+        } else {
+            console.warn('Received blockchain is not longer than the current chain');
         }
     }
 
@@ -122,6 +130,8 @@ export class P2PNetwork {
                 type: 'NEW_BLOCK',
                 data: block
             });
+        } else {
+            console.warn('Invalid block received');
         }
     }
 

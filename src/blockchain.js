@@ -14,6 +14,9 @@ export class Blockchain {
     }
 
     addBlock(data) {
+        if (typeof data !== 'string') {
+            throw new Error('Invalid data type');
+        }
         const previousBlock = this.getLatestBlock();
         const newBlock = new Block(this.chain.length, Date.now(), data, previousBlock.hash);
         this.chain.push(newBlock);
@@ -27,9 +30,7 @@ export class Blockchain {
 
             if (currentBlock.hash !== currentBlock.calculateHash()) {
                 return false;
-            }
-
-            if (currentBlock.previousHash !== previousBlock.hash) {
+            } else if (currentBlock.previousHash !== previousBlock.hash) {
                 return false;
             }
         }
