@@ -4,15 +4,15 @@ This project implements a simple blockchain with a peer-to-peer (P2P) network us
 
 ## Table of Contents
 
-- Features
-- Prerequisites
-- Installation
-- Configuration
-- Usage
-- API Endpoints
-- Project Structure
-- Security Considerations
-- License
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [API Endpoints](#api-endpoints)
+- [Project Structure](#project-structure)
+- [Security Considerations](#security-considerations)
+- [License](#license)
 
 ## Features
 
@@ -107,22 +107,27 @@ key.pem
 key.pem.example
 package.json
 src/
-  ├── block.js
-  ├── blockchain.js
+  ├── blockchain/
+  │   ├── block.js
+  │   └── blockchain.js
   ├── index.js
-  ├── p2pNetwork.js
-  └── server.js
+  ├── network/
+  │   ├── p2pNetwork.js
+  │   └── upnp.js
+  └── server/
+      └── server.js
 ```
 
-- **`src/block.js`**: Defines the `Block` class.
-- **`src/blockchain.js`**: Defines the `Blockchain` class.
-- **`src/p2pNetwork.js`**: Defines the `P2PNetwork` class.
-- **`src/server.js`**: Configures and starts the HTTP and WebSocket servers.
+- **`src/blockchain/block.js`**: Defines the `Block` class.
+- **`src/blockchain/blockchain.js`**: Defines the `Blockchain` class.
+- **`src/network/p2pNetwork.js`**: Defines the `P2PNetwork` class.
+- **`src/network/upnp.js`**: Handles UPnP port forwarding.
+- **`src/server/server.js`**: Configures and starts the HTTP and WebSocket servers.
 - **`src/index.js`**: Entry point of the application.
 
 ## Security Considerations
 
-- **Private Keys**: Never commit private keys (key.pem, key_unencrypted.pem) to a public repository. Use environment variables or secure storage solutions.
+- **Private Keys**: Never commit private keys (`key.pem`, `key_unencrypted.pem`) to a public repository. Use environment variables or secure storage solutions.
 - **SSL/TLS**: Ensure that SSL/TLS certificates are properly configured to secure communication between peers.
 - **Environment Variables**: Use environment variables to manage sensitive configuration data.
 
