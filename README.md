@@ -118,12 +118,18 @@ src/
   ├── blockchain/
   │   ├── block.ts
   │   └── blockchain.ts
-  ├── index.ts
+  ├── main.ts
   ├── network/
   │   ├── p2pNetwork.ts
   │   └── upnp.ts
-  └── server/
-      └── server.ts
+  ├── server/
+  │   ├── app.ts
+  │   ├── blockchainInstance.ts
+  │   ├── index.ts
+  │   ├── middleware.ts
+  │   ├── p2pNetworkInstance.ts
+  │   ├── routes.ts
+  │   └── utils.ts
 ```
 
 - **`src/blockchain/block.ts`**: Defines the `Block` class.
