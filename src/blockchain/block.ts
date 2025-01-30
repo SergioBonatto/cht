@@ -1,7 +1,13 @@
 import crypto from 'crypto';
 
 export class Block {
-    constructor(index, timestamp, data, previousHash = '') {
+    index: number;
+    timestamp: number;
+    data: string;
+    previousHash: string;
+    hash: string;
+
+    constructor(index: number, timestamp: number, data: string, previousHash = '') {
         if (typeof index !== 'number' || typeof timestamp !== 'number' || typeof data !== 'string' || typeof previousHash !== 'string') {
             throw new Error('Invalid block parameters');
         }
@@ -12,7 +18,7 @@ export class Block {
         this.hash = this.calculateHash();
     }
 
-    calculateHash() {
+    calculateHash(): string {
         return crypto.createHash('sha256')
             .update(this.index + this.timestamp + JSON.stringify(this.data) + this.previousHash)
             .digest('hex');

@@ -1,19 +1,21 @@
 import { Block } from './block.js';
 
 export class Blockchain {
+    chain: Block[];
+
     constructor() {
         this.chain = [this.createGenesisBlock()];
     }
 
-    createGenesisBlock() {
+    createGenesisBlock(): Block {
         return new Block(0, Date.now(), "Genesis Block", "0");
     }
 
-    getLatestBlock() {
+    getLatestBlock(): Block {
         return this.chain[this.chain.length - 1];
     }
 
-    addBlock(data) {
+    addBlock(data: string): Block {
         if (typeof data !== 'string') {
             throw new Error('Invalid data type');
         }
@@ -23,7 +25,7 @@ export class Blockchain {
         return newBlock;
     }
 
-    isChainValid() {
+    isChainValid(): boolean {
         for (let i = 1; i < this.chain.length; i++) {
             const currentBlock = this.chain[i];
             const previousBlock = this.chain[i - 1];
@@ -37,7 +39,7 @@ export class Blockchain {
         return true;
     }
 
-    printChain() {
+    printChain(): void {
         this.chain.forEach(block => {
             console.log("Index:", block.index);
             console.log("Timestamp:", block.timestamp);

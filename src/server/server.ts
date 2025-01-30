@@ -14,15 +14,15 @@ const options = {
 };
 
 const blockchain = new Blockchain();
-const p2pNetwork = new P2PNetwork(blockchain, process.env.P2P_PORT || 6001, options);
+const p2pNetwork = new P2PNetwork(blockchain, parseInt(process.env.P2P_PORT || '6001'), options);
 
 const app = express();
 app.use(bodyParser.json());
 
 // Middleware to validate request body for /mine endpoint
-const validateMineRequest = (req, res, next) => {
+const validateMineRequest = (req: express.Request, res: express.Response, next: express.NextFunction): void => {
     if (!req.body.data) {
-        return res.status(400).json({ error: 'Data is required to mine a block' });
+        res.status(400).json({ error: 'Data is required to mine a block' });
     } else {
         next();
     }
@@ -47,10 +47,10 @@ app.post('/mine', validateMineRequest, (req, res) => {
 });
 
 // Function to check if a port is in use
-const checkPortInUse = (port) => {
+const checkPortInUse = (port: number): Promise<boolean> => {
     return new Promise((resolve, reject) => {
         const tester = net.createServer()
-            .once('error', (err) => {
+            .once('error', (err: NodeJS.ErrnoException) => {
                 if (err.code === 'EADDRINUSE') {
                     resolve(true);
                 } else {
@@ -65,21 +65,21 @@ const checkPortInUse = (port) => {
 };
 
 // Initialization
-export const startServer = async () => {
+export const startServer = async (): Promise<void> => {
     try {
-        let httpPort = process.env.HTTP_PORT || 3001;
+        let httpPort = parseInt(process.env.HTTP_PORT || '3001');
         const portInUse = await checkPortInUse(httpPort);
 
         if (portInUse) {
             console.error(`Port ${httpPort} is already in use. Trying another port...`);
-            httpPort = parseInt(httpPort) + 1;
+            httpPort += 1;
         }
 
         const server = app.listen(httpPort, () => {
             console.log(`HTTP Server running on port ${httpPort}`);
         });
 
-        server.on('error', (error) => {
+        server.on('error', (error: NodeJS.ErrnoException) => {
             if (error.code === 'EADDRINUSE') {
                 console.error(`Port ${httpPort} is already in use`);
             } else {

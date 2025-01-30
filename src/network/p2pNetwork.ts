@@ -1,9 +1,21 @@
 import https from 'https';
 import { WebSocketServer, WebSocket } from 'ws';
 import { setupUPnP } from './upnp.js';
+import { Blockchain } from '../blockchain/blockchain.js';
+
+interface P2PNetworkOptions {
+    key: Buffer;
+    cert: Buffer;
+}
 
 export class P2PNetwork {
-    constructor(blockchain, port, options) {
+    blockchain: Blockchain;
+    port: number;
+    peers: Set<WebSocket>;
+    server: WebSocketServer | null;
+    options: P2PNetworkOptions;
+
+    constructor(blockchain: Blockchain, port: number, options: P2PNetworkOptions) {
         this.blockchain = blockchain;
         this.port = port;
         this.peers = new Set();
@@ -11,11 +23,11 @@ export class P2PNetwork {
         this.options = options;
     }
 
-    async initialize() {
+    async initialize(): Promise<void> {
         const server = https.createServer(this.options);
         this.server = new WebSocketServer({ server });
 
-        this.server.on('connection', (ws) => {
+        this.server.on('connection', (ws: WebSocket) => {
             this.handleNewPeer(ws);
         });
 
@@ -23,7 +35,7 @@ export class P2PNetwork {
             console.log(`WebSocket server running on port ${this.port}`);
         });
 
-        server.on('error', (error) => {
+        server.on('error', (error: NodeJS.ErrnoException) => {
             if (error.code === 'EADDRINUSE') {
                 console.error(`Port ${this.port} is already in use`);
             } else {
@@ -43,7 +55,7 @@ export class P2PNetwork {
         }
     }
 
-    isValidUrl(string) {
+    isValidUrl(string: string): boolean {
         try {
             new URL(string);
             return true;
@@ -52,7 +64,7 @@ export class P2PNetwork {
         }
     }
 
-    connectToPeer(peer) {
+    connectToPeer(peer: string): void {
         const ws = new WebSocket(peer, { rejectUnauthorized: false });
         ws.on('open', () => {
             this.handleNewPeer(ws);
@@ -62,10 +74,10 @@ export class P2PNetwork {
         });
     }
 
-    handleNewPeer(ws) {
+    handleNewPeer(ws: WebSocket): void {
         this.peers.add(ws);
 
-        ws.on('message', (message) => {
+        ws.on('message', (message: string) => {
             this.handleMessage(ws, JSON.parse(message));
         });
 
@@ -77,13 +89,13 @@ export class P2PNetwork {
         this.syncBlockchain(ws);
     }
 
-    syncBlockchain(ws) {
+    syncBlockchain(ws: WebSocket): void {
         ws.send(JSON.stringify({
             type: 'GET_BLOCKCHAIN'
         }));
     }
 
-    handleMessage(ws, message) {
+    handleMessage(ws: WebSocket, message: any): void {
         switch (message.type) {
             case 'GET_BLOCKCHAIN':
                 ws.send(JSON.stringify({
@@ -106,7 +118,7 @@ export class P2PNetwork {
         }
     }
 
-    handleReceivedBlockchain(chain) {
+    handleReceivedBlockchain(chain: any[]): void {
         // Check if the received chain is valid and longer
         if (chain.length > this.blockchain.chain.length) {
             // Additional validity check here
@@ -116,7 +128,7 @@ export class P2PNetwork {
         }
     }
 
-    handleNewBlock(block) {
+    handleNewBlock(block: any): void {
         // Verify and add new block
         if (this.blockchain.isChainValid() && block.previousHash === this.blockchain.getLatestBlock().hash) {
             this.blockchain.chain.push(block);
@@ -130,7 +142,7 @@ export class P2PNetwork {
         }
     }
 
-    broadcast(message) {
+    broadcast(message: any): void {
         this.peers.forEach(peer => {
             peer.send(JSON.stringify(message));
         });

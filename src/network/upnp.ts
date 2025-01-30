@@ -1,7 +1,7 @@
 import upnp from 'nat-upnp';
 import { publicIpv4 } from 'public-ip';
 
-export const setupUPnP = async (port) => {
+export const setupUPnP = async (port: number): Promise<void> => {
     const client = upnp.createClient();
     const publicIpAddress = await publicIpv4();
     client.portMapping({
