@@ -26,6 +26,8 @@ This project implements a simple blockchain with a peer-to-peer (P2P) network us
 
 - Node.js (v14 or higher)
 - npm (v6 or higher)
+- TypeScript (v5 or higher)
+
 
 ## Installation
 
@@ -40,6 +42,12 @@ This project implements a simple blockchain with a peer-to-peer (P2P) network us
 
    ```sh
    npm install
+   ```
+
+3. Compile the TypeScript code:
+
+   ```sh
+   npm run build
    ```
 
 ## Configuration
@@ -108,22 +116,28 @@ key.pem.example
 package.json
 src/
   ├── blockchain/
-  │   ├── block.js
-  │   └── blockchain.js
-  ├── index.js
+  │   ├── block.ts
+  │   └── blockchain.ts
+  ├── main.ts
   ├── network/
-  │   ├── p2pNetwork.js
-  │   └── upnp.js
-  └── server/
-      └── server.js
+  │   ├── p2pNetwork.ts
+  │   └── upnp.ts
+  ├── server/
+  │   ├── app.ts
+  │   ├── blockchainInstance.ts
+  │   ├── index.ts
+  │   ├── middleware.ts
+  │   ├── p2pNetworkInstance.ts
+  │   ├── routes.ts
+  │   └── utils.ts
 ```
 
-- **`src/blockchain/block.js`**: Defines the `Block` class.
-- **`src/blockchain/blockchain.js`**: Defines the `Blockchain` class.
-- **`src/network/p2pNetwork.js`**: Defines the `P2PNetwork` class.
-- **`src/network/upnp.js`**: Handles UPnP port forwarding.
-- **`src/server/server.js`**: Configures and starts the HTTP and WebSocket servers.
-- **`src/index.js`**: Entry point of the application.
+- **`src/blockchain/block.ts`**: Defines the `Block` class.
+- **`src/blockchain/blockchain.ts`**: Defines the `Blockchain` class.
+- **`src/network/p2pNetwork.ts`**: Defines the `P2PNetwork` class.
+- **`src/network/upnp.ts`**: Handles UPnP port forwarding.
+- **`src/server/server.ts`**: Configures and starts the HTTP and WebSocket servers.
+- **`src/index.ts`**: Entry point of the application.
 
 ## Security Considerations
 
